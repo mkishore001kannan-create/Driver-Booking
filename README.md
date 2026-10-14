@@ -1,67 +1,88 @@
-# Velo driver booking backend
+# DriveEase
 
-Velo is a local full-stack prototype for booking verified personal drivers. The backend is Express + Socket.IO with a JSON persistence store so it runs without a database installation.
+DriveEase is a React + Vite booking app with an Express, Socket.IO, and MongoDB/Mongoose backend. Customer searches, driver offers, assignments, trip state, payment and review state, emergency alerts, and active-trip location snapshots are stored in MongoDB. The existing JSON store remains for the prototype's authentication accounts, legacy records, and admin notifications.
 
-## Run
+## Local setup (Windows PowerShell)
+
+1. Install Node.js 18 or newer, MongoDB Community Server locally, or create a MongoDB Atlas database.
+2. From the project folder:
+
+   ```powershell
+   npm install
+   Copy-Item .env.example .env
+   ```
+
+3. Edit `.env` and set `MONGODB_URI` to a reachable database and replace `JWT_SECRET` with a long random value.
+4. Start the app:
+
+   ```powershell
+   npm run dev
+   ```
+
+Open `http://localhost:5173`. The API listens on `http://localhost:3000`.
+
+Demo accounts:
+
+- Customer: `arjun@velo.local` / `demo123`
+- Admin: `admin@velo.local` / `admin123`
+- Verified driver: `rohan@velo.local` / `driver123`
+
+MongoDB must be reachable before the API starts. The server creates the required schema indexes, including the driver's `2dsphere` location index. Existing JSON-seeded driver coordinates are not copied into MongoDB or treated as live locations. Drivers start offline and must explicitly go online after granting browser location permission.
+
+## Nearby driver matching and live trips
+
+- Pick a suggested Bengaluru place, use browser current location, or click the Leaflet map to set pickup and destination.
+- Route geometry, driving distance, duration, and the server-calculated fare come from the configured OSRM-compatible routing service. The customer search uses the exact 1,000-metre pickup radius; this is a proximity search, not a claim that a driver's driving route is under 1 km.
+- Only verified, explicitly online drivers with a selected matching service and a location updated within 90 seconds are eligible.
+- Driver location is sent every 30 seconds while online/on-trip, with browser permission, and only while the authenticated Socket.IO connection is active. Stale drivers are taken offline.
+- Customer searches expire after `BOOKING_SEARCH_TIMEOUT_MS` (default 60 seconds). No-driver and network failures are shown in the UI, and customers can retry.
+- A MongoDB conditional update makes assignment first-wins. The server rechecks the driver's eligibility, current position, and exact radius before assignment.
+- Socket.IO authenticates connections and authorizes each booking room. Precise driver location is only sent to assigned trip participants and is removed from the booking snapshot after completion or cancellation.
+- Trip states are validated server-side: `searching`, `driver_assigned`, `driver_en_route`, `arrived_at_pickup`, `in_progress`, then `completed`; cancellation and expiry are also supported.
+- The animated scan indicates an active search only. Nearby driver markers are based on actual server results, and their pre-assignment coordinates are rounded to reduce location exposure.
+- The landing-page fare and route card is an illustrative sample, not a live ride or quote. The payment action records a demo payment state only; no payment processor is integrated, so it must not be used to collect real payments.
+
+## Configuration
+
+`.env.example` lists the supported variables:
+
+- `MONGODB_URI`: required MongoDB connection string
+- `JWT_SECRET`: JWT signing key; use a strong, unique value outside local development
+- `ROUTING_BASE_URL`: OSRM-compatible service base URL; defaults to the public OSRM demo service
+- `BOOKING_SEARCH_TIMEOUT_MS`: search expiry in milliseconds; minimum effective value is 15 seconds
+- `PORT`: API port (default `3000`)
+
+The default public OSRM endpoint is suitable for local evaluation only. For production, configure a routing provider with appropriate availability, usage limits, and terms. The map uses OpenStreetMap tiles and includes attribution.
+
+## API surface
+
+Protected endpoints use `Authorization: Bearer <JWT>`.
+
+- `GET /api/routes`: fetch a real driving route between coordinates
+- `POST /api/driver-search`: persist a booking, calculate fare from the server route, and offer it to eligible drivers in 1 km
+- `GET /api/drivers/nearby`: return at most 50 eligible customer-facing map markers within 1 km
+- `PATCH /api/drivers/availability`: explicitly go online/offline; online requires a recent browser location and selected services
+- `POST /api/driver-location`: rate-limited driver GPS update
+- `GET /api/driver/requests`: recover still-open offers after reconnecting
+- `POST /api/bookings/:id/accept`, `POST /api/bookings/:id/reject`
+- `POST /api/bookings/:id/cancel`, `POST /api/bookings/:id/status`
+- `POST /api/bookings/:id/payment`, `POST /api/bookings/:id/review`, `POST /api/emergencies`
+- `GET /api/bookings`, `GET /api/bookings/:id`: recover authorized persistent state
+
+Socket.IO events include `ride:request`, `ride:request-closed`, `ride:assigned`, `ride:expired`, `booking:state`, `booking:update`, and `driver:location`. Clients authenticate with the socket `auth.token`; booking room membership is authorized by the server.
+
+## Tests and build
 
 ```powershell
-npm install
-npm start
+npm test
+npm run build
 ```
 
-Open `http://localhost:3000` for the rider application or `http://localhost:3000/driver.html` for the separate driver application.
+The default test suite covers coordinate validation and order, the 1 km boundary, stale/unavailable/ineligible drivers, safe map markers, trip transitions, socket booking authorization, and model indexes. The concurrent MongoDB acceptance test is skipped unless `MONGO_TEST_URI` points at a dedicated database whose name contains `test`:
 
-The seeded demo accounts are:
+```powershell
+$env:MONGO_TEST_URI = "mongodb://127.0.0.1:27017/driveease-test"
+npm test
+```
 
-- User: `arjun@velo.local` / `demo123`
-- Admin: `admin@velo.local` / `admin123`
-- Driver: `rohan@velo.local` / `driver123`
-
-The first server run creates `data/store.json`. That file is ignored by git and contains local development data.
-
-## Implemented backend capabilities
-
-- JWT authentication with `user`, `driver`, and `admin` roles
-- Password hashing with bcrypt
-- Driver registration requiring license, identity, and insurance document IDs
-- Admin verification and rejection workflow; only verified drivers can receive or accept requests
-- `verified: true` driver payloads and verified status in nearby-driver results
-- Haversine nearby matching with a hard maximum of 2 km
-- Separate driver portal with verified account login, online/offline presence, nearby request queue, accept flow, and driver ride history
-- Driver Leaflet map with request markers, browser notifications, and OSRM best-route previews after acceptance
-- Rider live tracking via Socket.IO room updates, live driver marker, and route refreshes
-- Ride creation, driver accept/reject, ride status changes, cancellation, and completion
-- Socket.IO rooms for live ride updates, driver location, and notifications
-- Payment capture after ride completion
-- UPI and cash payment selection stored with each ride
-- One-to-five star reviews that update driver ratings
-- Driver rating summaries and rider review lookup
-- Role-aware ride history for riders and drivers
-- Emergency alerts for both riders and drivers, including ride and location context
-- Admin metrics, pending verifications, and recent rides
-- Leaflet + OpenStreetMap map integration in the frontend
-- Map click-to-drop destination pin and browser geolocation for pickup
-
-## Main API routes
-
-All protected routes use `Authorization: Bearer <token>`.
-
-- `POST /api/auth/register`, `POST /api/auth/login`
-- `POST /api/drivers/register`
-- `GET /api/drivers/nearby?lat=12.9719&lng=77.6412&radiusKm=2`
-- `PATCH /api/drivers/me/location`
-- `POST /api/rides`, `GET /api/rides`, `GET /api/rides/:id`
-- `POST /api/rides/:id/accept`, `POST /api/rides/:id/reject`
-- `PATCH /api/rides/:id/status`, `PATCH /api/rides/:id/location`
-- `POST /api/rides/:id/payment`, `POST /api/rides/:id/review`
-- `GET /api/history`
-- `GET /api/driver/requests`
-- `GET /api/drivers/:id/reviews`
-- `POST /api/emergencies`
-- `GET /api/notifications`
-- `GET /api/admin/dashboard`
-- `PATCH /api/admin/drivers/:id/verify`
-
-The driver app polls for new requests every 15 seconds and also listens for Socket.IO notifications. The rider joins the accepted ride room and receives driver location/status updates in real time. Route previews use the public OSRM routing service over OpenStreetMap; production deployments should use a managed routing provider with usage limits and an API key.
-
-For production, replace the JSON store with PostgreSQL or another transactional database, set a strong `JWT_SECRET`, add a real payment provider such as Stripe or Razorpay, and use an authenticated map/geolocation policy appropriate for the deployment.
+Do not use a production database for integration tests.
