@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  background: #f3f4f6;
+  color: #0f172a;
+}
+
+html, body, #root {
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(110, 231, 183, 0.18), transparent 28%),
+    linear-gradient(135deg, #f8fafc 0%, #ecfeff 50%, #f5f3ff 100%);
+}
+
+.card-surface {
+  @apply rounded-3xl border border-slate-200 bg-white/90 shadow-soft backdrop-blur-sm;
+}
+
+.input-shell {
+  @apply mt-2 block w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-200;
+}
+
+.primary-btn {
+  @apply inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700;
+}
+
+.secondary-btn {
+  @apply inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50;
+}
+
+.map-marker {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fff !important;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 30%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.map-marker-pickup {
+  background: #059669;
+}
+
+.map-marker-destination {
+  background: #0284c7;
+}
+
+.map-marker-driver {
+  background: #0f172a;
+  font-size: 14px;
+}
+
+.leaflet-interactive.radar-pulse {
+  transform-origin: center;
+  animation: radar-pulse 2.4s ease-out infinite;
+}
+
+.search-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgb(5 150 105 / 30%);
+  border-top-color: #059669;
+  border-radius: 9999px;
+  animation: search-spin 0.8s linear infinite;
+}
+
+@keyframes radar-pulse {
+  0% { stroke-opacity: 0.85; fill-opacity: 0.18; }
+  100% { stroke-opacity: 0.1; fill-opacity: 0.02; }
+}
+
+@keyframes search-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaflet-interactive.radar-pulse,
+  .search-spinner {
+    animation: none;
+  }
+}

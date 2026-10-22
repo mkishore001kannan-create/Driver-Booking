@@ -1,22 +1,45 @@
 {
-  "name": "velo-driver-booking",
+  "name": "driveease",
   "version": "1.0.0",
   "private": true,
-  "description": "Velo driver booking platform backend",
+  "description": "DriveEase advanced driver and cab booking platform",
+  "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node --watch server.js",
+    "client": "vite",
+    "build": "vite build",
+    "test": "node --test",
+    "preview": "vite preview --host 0.0.0.0",
+    "start": "node server.js"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "^18.0.8",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "leaflet": "^1.9.4",
+    "mongoose": "^8.8.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1",
+    "react-router-dom": "^6.28.0",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "tailwindcss": "^3.4.13",
+    "vite": "^5.4.10"
   }
 }
