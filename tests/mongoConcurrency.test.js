@@ -9,7 +9,8 @@ const mongoTestUri = process.env.MONGO_TEST_URI;
 test('Mongo atomic claims allow only one concurrent driver to accept a booking', {
   skip: !mongoTestUri && 'Set MONGO_TEST_URI to a dedicated test database to run Mongo concurrency tests'
 }, async t => {
-  const databaseName = new URL(mongoTestUri).pathname.slice(1);
+  const uriMatch = mongoTestUri.match(/^mongodb(?:\+srv)?:\/\/(?:[^@/]+@)?[^/]+\/([^?]*)/);
+  const databaseName = uriMatch?.[1] || '';
   assert.match(databaseName, /test/i, 'MONGO_TEST_URI must use a database name containing "test"');
 
   await mongoose.connect(mongoTestUri, { serverSelectionTimeoutMS: 5000 });
