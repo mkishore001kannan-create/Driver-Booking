@@ -21,6 +21,14 @@ DriveEase is a React + Vite booking app with an Express, Socket.IO, and MongoDB/
 
 Open `http://localhost:5173`. The API listens on `http://localhost:3000`.
 
+### MongoDB Atlas connection
+
+- Create a MongoDB database user with read/write access to the `driveease` database. This is separate from your Atlas website login.
+- Add your development machine's current IP address to the Atlas project's network access list.
+- Copy the Node.js driver connection string from Atlas and set it as `MONGODB_URI` in `.env`. Use `driveease` as the database name.
+- Keep `.env` private; it is ignored by Git. Never commit a MongoDB URI, database password, or JWT secret.
+- If the Node.js DNS resolver cannot resolve an Atlas `mongodb+srv://` URI, use the equivalent seed-list connection string provided by Atlas. Preserve its TLS, replica set, and authentication options.
+
 Demo accounts:
 
 - Customer: `arjun@velo.local` / `demo123`
