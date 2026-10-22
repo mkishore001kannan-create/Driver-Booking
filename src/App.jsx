@@ -991,86 +991,112 @@ function CustomerDashboard() {
           <div className="mb-4 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Book now</div>
           <h2 className="text-3xl font-black tracking-tight text-slate-950">Plan your next trip</h2>
 
-          <form onSubmit={handleSearchDrivers} className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <label className="text-sm font-medium text-slate-700">Pickup</label>
-              <input
-                list="location-suggestions"
-                value={form.pickup}
-                onChange={e => updatePlaceText('pickup', e.target.value)}
-                className="input-shell"
-                required
-              />
-              <button type="button" onClick={useCurrentLocation} className="mt-2 text-sm font-semibold text-emerald-700">Use my current location</button>
+          <form onSubmit={handleSearchDrivers} className="mt-6 space-y-5">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="trip-route-heading">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">1</span>
+                <div>
+                  <h3 id="trip-route-heading" className="font-bold text-slate-900">Choose your route</h3>
+                  <p className="text-xs text-slate-500">Select suggested places or drop pins on the map below.</p>
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label htmlFor="booking-pickup" className="text-sm font-medium text-slate-700">Pickup location</label>
+                  <input
+                    id="booking-pickup"
+                    list="location-suggestions"
+                    value={form.pickup}
+                    onChange={e => updatePlaceText('pickup', e.target.value)}
+                    className="input-shell"
+                    autoComplete="off"
+                    required
+                  />
+                  <button type="button" onClick={useCurrentLocation} className="mt-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900">Use my current location</button>
+                </div>
+                <div>
+                  <label htmlFor="booking-destination" className="text-sm font-medium text-slate-700">Destination</label>
+                  <input
+                    id="booking-destination"
+                    list="location-suggestions"
+                    value={form.destination}
+                    onChange={e => updatePlaceText('destination', e.target.value)}
+                    className="input-shell"
+                    autoComplete="off"
+                    required
+                  />
+                </div>
+              </div>
               <datalist id="location-suggestions">
                 {LOCATION_SUGGESTIONS.map(place => (
                   <option key={place.name} value={place.name} />
                 ))}
               </datalist>
-            </div>
-            <div className="md:col-span-2">
-              <label className="text-sm font-medium text-slate-700">Destination</label>
-              <input
-                list="location-suggestions"
-                value={form.destination}
-                onChange={e => updatePlaceText('destination', e.target.value)}
-                className="input-shell"
-                required
-              />
-            </div>
+            </section>
 
-            <div>
-              <label className="text-sm font-medium text-slate-700">Service</label>
-              <select value={form.serviceType} onChange={e => setForm({ ...form, serviceType: e.target.value })} className="input-shell">
-                <option value="cab-driver">Cab + driver</option>
-                <option value="personal-driver">Personal driver</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Payment</label>
-              <select value={form.paymentMethod} onChange={e => setForm({ ...form, paymentMethod: e.target.value })} className="input-shell">
-                <option value="UPI">UPI</option>
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Trip date</label>
-              <input type="date" min={getDefaultTripSchedule().tripDate} value={form.tripDate} onChange={e => setForm({ ...form, tripDate: e.target.value })} className="input-shell" required />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Pickup time</label>
-              <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} className="input-shell" required />
-            </div>
-            <div className="md:col-span-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <div className="flex items-center justify-between gap-3">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="trip-details-heading">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">2</span>
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Road-route fare estimate</div>
-                  <div className="mt-2 text-3xl font-black text-slate-950">{fare == null ? '—' : `₹${fare}`}</div>
+                  <h3 id="trip-details-heading" className="font-bold text-slate-900">Trip details</h3>
+                  <p className="text-xs text-slate-500">Set your pickup time and choose the service and payment method.</p>
+                </div>
+              </div>
+              <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="booking-service" className="text-sm font-medium text-slate-700">Service</label>
+                  <select id="booking-service" value={form.serviceType} onChange={e => setForm({ ...form, serviceType: e.target.value })} className="input-shell">
+                    <option value="cab-driver">Cab + driver</option>
+                    <option value="personal-driver">Personal driver</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="booking-payment" className="text-sm font-medium text-slate-700">Payment method</label>
+                  <select id="booking-payment" value={form.paymentMethod} onChange={e => setForm({ ...form, paymentMethod: e.target.value })} className="input-shell">
+                    <option value="UPI">UPI</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="booking-date" className="text-sm font-medium text-slate-700">Trip date</label>
+                  <input id="booking-date" type="date" min={getDefaultTripSchedule().tripDate} value={form.tripDate} onChange={e => setForm({ ...form, tripDate: e.target.value })} className="input-shell" required />
+                </div>
+                <div>
+                  <label htmlFor="booking-time" className="text-sm font-medium text-slate-700">Pickup time</label>
+                  <input id="booking-time" type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} className="input-shell" required />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5" aria-labelledby="route-map-heading">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">3</span>
+                  <div>
+                    <h3 id="route-map-heading" className="font-bold text-slate-900">Review route and fare</h3>
+                    <p className="text-xs text-slate-500">Road distance, travel time and fare are estimates.</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setMapTarget('pickup')} aria-pressed={mapTarget === 'pickup'} className={`rounded-full px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] ${mapTarget === 'pickup' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600'}`}>
+                    Set pickup pin
+                  </button>
+                  <button type="button" onClick={() => setMapTarget('destination')} aria-pressed={mapTarget === 'destination'} className={`rounded-full px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] ${mapTarget === 'destination' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600'}`}>
+                    Set destination pin
+                  </button>
+                </div>
+              </div>
+              <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Estimated fare</div>
+                  <div className="mt-1 text-3xl font-black text-slate-950">{fare == null ? '—' : `₹${fare}`}</div>
                 </div>
                 <div className="text-right text-sm text-slate-600">
                   <div>{route ? `${route.distanceKm} km` : 'Route unavailable'}</div>
                   <div>{route ? `${route.durationMinutes} min estimated` : '—'}</div>
                 </div>
               </div>
-            </div>
-
-            <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-bold uppercase tracking-[0.2em] text-slate-500">Live route and search map</div>
-                  <div className="mt-1 text-xs text-slate-500">Click the map to place the selected pickup or destination pin.</div>
-                </div>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => setMapTarget('pickup')} aria-pressed={mapTarget === 'pickup'} className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${mapTarget === 'pickup' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600'}`}>
-                    Pickup pin
-                  </button>
-                  <button type="button" onClick={() => setMapTarget('destination')} aria-pressed={mapTarget === 'destination'} className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${mapTarget === 'destination' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600'}`}>
-                    Destination pin
-                  </button>
-                </div>
-              </div>
-
               <RideMap
                 pickup={places.pickup}
                 destination={places.destination}
@@ -1080,9 +1106,10 @@ function CustomerDashboard() {
                 onMapSelect={handleMapSelect}
               />
               {routeError && <p className="mt-3 text-sm text-rose-700" role="alert">{routeError}</p>}
-            </div>
+              <p className="mt-2 text-xs text-slate-500">Click the map to place the selected pickup or destination pin.</p>
+            </section>
 
-            <div className="md:col-span-2">
+            <div>
               <button
                 type="submit"
                 disabled={loading || !route || fare == null || !places.pickup || !places.destination || searchStatus === 'searching' ||
@@ -1542,51 +1569,68 @@ function DriverDashboard() {
         <div className="card-surface max-w-2xl p-6">
           <div className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Become a driver</div>
           <h2 className="text-3xl font-black tracking-tight text-slate-950">Register your profile</h2>
-          <form onSubmit={handleRegister} className="mt-6 grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="text-sm font-medium text-slate-700">Vehicle make</label>
-              <input value={form.make} onChange={e => setForm({ ...form, make: e.target.value })} className="input-shell" placeholder="Honda" required />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Vehicle model</label>
-              <input value={form.model} onChange={e => setForm({ ...form, model: e.target.value })} className="input-shell" placeholder="City" required />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Plate number</label>
-              <input value={form.plate} onChange={e => setForm({ ...form, plate: e.target.value })} className="input-shell" placeholder="KA 03 AB 1234" required />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Phone</label>
-              <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-shell" placeholder="+91 98xxx xxxxx" required />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">License ID</label>
-              <input value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} className="input-shell" placeholder="DL-KA-2021-12345" required />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-700">Identity ID</label>
-              <input value={form.identity} onChange={e => setForm({ ...form, identity: e.target.value })} className="input-shell" placeholder="AADHAAR-XXXX-1234" required />
-            </div>
-            <div className="md:col-span-2">
-              <label className="text-sm font-medium text-slate-700">Insurance number</label>
-              <input value={form.insurance} onChange={e => setForm({ ...form, insurance: e.target.value })} className="input-shell" placeholder="INS-2026-8831" required />
-            </div>
-            <fieldset className="md:col-span-2">
-              <legend className="text-sm font-medium text-slate-700">Services to provide</legend>
-              {['cab-driver', 'personal-driver'].map(service => (
-                <label key={service} className="mr-5 mt-2 inline-flex items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={serviceTypes.includes(service)}
-                    onChange={event => setServiceTypes(previous => event.target.checked
-                      ? [...new Set([...previous, service])]
-                      : previous.filter(item => item !== service))}
-                  />
-                  {service === 'cab-driver' ? 'Cab + driver' : 'Personal driver'}
-                </label>
-              ))}
+          <form onSubmit={handleRegister} className="mt-6 space-y-5">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4" aria-labelledby="driver-vehicle-heading">
+              <h3 id="driver-vehicle-heading" className="font-bold text-slate-900">Vehicle details</h3>
+              <p className="mt-1 text-xs text-slate-500">Tell customers which vehicle you provide.</p>
+              <div className="mt-2 grid gap-x-4 gap-y-2 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="driver-vehicle-make" className="text-sm font-medium text-slate-700">Vehicle make</label>
+                  <input id="driver-vehicle-make" value={form.make} onChange={e => setForm({ ...form, make: e.target.value })} className="input-shell" placeholder="Honda" autoComplete="organization" required />
+                </div>
+                <div>
+                  <label htmlFor="driver-vehicle-model" className="text-sm font-medium text-slate-700">Vehicle model</label>
+                  <input id="driver-vehicle-model" value={form.model} onChange={e => setForm({ ...form, model: e.target.value })} className="input-shell" placeholder="City" required />
+                </div>
+                <div className="sm:col-span-2">
+                  <label htmlFor="driver-vehicle-plate" className="text-sm font-medium text-slate-700">Plate number</label>
+                  <input id="driver-vehicle-plate" value={form.plate} onChange={e => setForm({ ...form, plate: e.target.value })} className="input-shell" placeholder="KA 03 AB 1234" autoComplete="off" required />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-slate-200 bg-white p-4" aria-labelledby="driver-contact-heading">
+              <h3 id="driver-contact-heading" className="font-bold text-slate-900">Contact and verification</h3>
+              <p className="mt-1 text-xs text-slate-500">Your submitted information is used for account verification.</p>
+              <div className="mt-2 grid gap-x-4 gap-y-2 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="driver-phone" className="text-sm font-medium text-slate-700">Phone</label>
+                  <input id="driver-phone" type="tel" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-shell" placeholder="+91 98xxx xxxxx" autoComplete="tel" required />
+                </div>
+                <div>
+                  <label htmlFor="driver-license" className="text-sm font-medium text-slate-700">License ID</label>
+                  <input id="driver-license" value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} className="input-shell" placeholder="DL-KA-2021-12345" autoComplete="off" required />
+                </div>
+                <div>
+                  <label htmlFor="driver-identity" className="text-sm font-medium text-slate-700">Identity ID</label>
+                  <input id="driver-identity" value={form.identity} onChange={e => setForm({ ...form, identity: e.target.value })} className="input-shell" placeholder="AADHAAR-XXXX-1234" autoComplete="off" required />
+                </div>
+                <div>
+                  <label htmlFor="driver-insurance" className="text-sm font-medium text-slate-700">Insurance number</label>
+                  <input id="driver-insurance" value={form.insurance} onChange={e => setForm({ ...form, insurance: e.target.value })} className="input-shell" placeholder="INS-2026-8831" autoComplete="off" required />
+                </div>
+              </div>
+            </section>
+
+            <fieldset className="rounded-2xl border border-slate-200 bg-white p-4">
+              <legend className="px-1 text-sm font-bold text-slate-900">Services you provide</legend>
+              <p className="text-xs text-slate-500">Select every service you’re eligible to accept.</p>
+              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
+                {['cab-driver', 'personal-driver'].map(service => (
+                  <label key={service} className="inline-flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={serviceTypes.includes(service)}
+                      onChange={event => setServiceTypes(previous => event.target.checked
+                        ? [...new Set([...previous, service])]
+                        : previous.filter(item => item !== service))}
+                    />
+                    {service === 'cab-driver' ? 'Cab + driver' : 'Personal driver'}
+                  </label>
+                ))}
+              </div>
             </fieldset>
-            <button type="submit" disabled={registering} className="primary-btn md:col-span-2 disabled:opacity-70">
+            <button type="submit" disabled={registering} className="primary-btn w-full disabled:opacity-70">
               {registering ? 'Submitting...' : 'Submit for verification'}
             </button>
           </form>
